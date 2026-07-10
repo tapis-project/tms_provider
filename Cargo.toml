@@ -1,0 +1,29 @@
+[package]
+name = "tms_provider"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.103"
+axum = { version = "0.8.9", features = ["macros"] }
+axum-extra = { version = "0.12.6", features = ["cookie", "cookie-private", "typed-header"] }
+config = "0.15.25"
+dirs = "6.0.0"
+globwalk = "0.9.1"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_derive = "1.0.228"
+serde_json = { version = "1.0.150", features = ["default"] }
+thiserror = "2.0.18"
+tokio = { version = "1.52.3", features = ["full"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+serde_yaml = "0.9.34"
+uuid = { version = "1.23.4", features = ["v4"] }
+toml = "1.1.2"
+tracing-test = "0.2.6"
