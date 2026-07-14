@@ -18,7 +18,8 @@ pub struct Account {
 
 #[derive(Serialize)]
 pub struct Resources {
-    pub provider_name: String,
+    pub provider_id: String,
+    pub account_id: String,
     pub resources: Vec<Resource>,
 }
 

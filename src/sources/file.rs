@@ -29,7 +29,8 @@ impl Source for FileSource {
         account: &Account,
     ) -> Result<Resources, ProviderError> {
         Ok(Resources {
-            provider_name: provider.id.clone(),
+            provider_id: provider.id.clone(),
+            account_id: account.id.clone(),
             resources: vec![],
         })
     }
