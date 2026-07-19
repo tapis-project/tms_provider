@@ -1,37 +1,72 @@
-use crate::errors::ProviderError;
-use crate::sources::*;
-use std::path::{Path, PathBuf};
+use serde::Deserialize;
+
+use crate::{
+    errors::{
+        ProviderError,
+        SourceError::{AccountNotFound, ResourceNotFound},
+    },
+    sources::*,
+};
+use std::{
+    collections::HashMap,
+    fs::read_to_string,
+    path::{Path, PathBuf},
+};
 
 pub struct FileSource {
-    pub file: PathBuf,
+    file: PathBuf,
+    data: ResourcesData,
 }
 
+#[derive(Serialize, Deserialize, Clone, Default, Debug)]
+struct ResourcesData {
+    resources: HashMap<ResourceId, Resource>,
+    generally_available: Vec<ResourceId>,
+    per_account: HashMap<AccountId, Vec<ResourceId>>,
+}
+
+#[async_trait]
 impl Source for FileSource {
-    fn get_provider(&self, provider_id: ProviderId) -> Result<Provider, ProviderError> {
-        Ok(Provider {
-            id: "provider foo".into(),
-        })
-    }
-
-    fn get_account(
+    async fn get_resources(
         &self,
-        provider: &Provider,
-        account_id: AccountId,
-    ) -> Result<Account, ProviderError> {
-        Ok(Account {
-            id: "account foo".into(),
-        })
-    }
-
-    fn get_resources(
-        &self,
-        provider: &Provider,
-        account: &Account,
-    ) -> Result<Resources, ProviderError> {
+        account: Option<AccountId>,
+    ) -> Result<Resources, SourceError> {
+        let resources = &self.data.resources;
+        let empty = vec![];
+        let per_account = account
+            .map(|act| {
+                self.data
+                    .per_account
+                    .get(&act)
+                    .ok_or_else(|| AccountNotFound(act))
+            })
+            .transpose()?
+            .unwrap_or(&empty);
         Ok(Resources {
-            provider_id: provider.id.clone(),
-            account_id: account.id.clone(),
-            resources: vec![],
+            resources: self
+                .data
+                .generally_available
+                .iter()
+                .chain(per_account)
+                .map(|r| {
+                    resources
+                        .get(r)
+                        .cloned()
+                        .ok_or_else(|| ResourceNotFound(r.into()))
+                })
+                .collect::<Result<Vec<_>, _>>()?,
         })
+    }
+}
+
+impl FileSource {
+    pub fn from_path(file: &Path) -> Result<Self, ProviderError> {
+        let s = read_to_string(&file)?;
+        let src = FileSource {
+            file: file.into(),
+            data: serde_yaml::from_str(&s)
+                .map_err(|e| ProviderError::ApplicationConfigError(e.to_string()))?,
+        };
+        Ok(src)
     }
 }

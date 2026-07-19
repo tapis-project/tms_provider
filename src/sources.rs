@@ -1,45 +1,39 @@
-use serde::Serialize;
-use uuid::Uuid;
+use std::{
+    collections::HashMap,
+    fs::read_to_string,
+    path::{Path, PathBuf},
+};
 
-use crate::errors::ProviderError;
+use crate::{
+    errors::ProviderError,
+    types::{AccountId, ResourceId},
+};
+use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+use url::Url;
+
+use crate::errors::SourceError;
 
 pub mod file;
+pub mod null;
 
-pub type ProviderId = String;
-pub type AccountId = String;
-
-pub struct Provider {
-    id: String,
-}
-
-pub struct Account {
-    id: String,
-}
-
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Resources {
-    pub provider_id: String,
-    pub account_id: String,
     pub resources: Vec<Resource>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Resource {
-    pub id: Uuid,
+    pub resource_id: ResourceId,
     pub name: String,
+    pub url: Url,
     pub description: String,
 }
 
+#[async_trait]
 pub trait Source {
-    fn get_provider(&self, provider_id: ProviderId) -> Result<Provider, ProviderError>;
-    fn get_account(
+    async fn get_resources(
         &self,
-        provider: &Provider,
-        account_id: AccountId,
-    ) -> Result<Account, ProviderError>;
-    fn get_resources(
-        &self,
-        provider: &Provider,
-        account: &Account,
-    ) -> Result<Resources, ProviderError>;
+        account: Option<AccountId>,
+    ) -> Result<Resources, SourceError>;
 }

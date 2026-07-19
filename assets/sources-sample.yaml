@@ -1,0 +1,29 @@
+resources:
+  r111:
+    resource_id: r111
+    name: Stampede
+    url: http://example.org/
+    description: Stampede at TACC
+  r222:
+    resource_id: r222
+    name: Vista
+    url: http://example.org/
+    description: Vista at TACC
+  r333:
+    resource_id: r333
+    name: Frontera
+    url: http://example.org/
+    description: Frontera at TACC
+
+generally_available:
+- r111
+- r222
+- r333
+
+per_account:
+  account-a:
+  - r111
+  - r222
+
+  account-b:
+  - r333

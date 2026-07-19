@@ -8,7 +8,7 @@ use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 use tracing::{debug, instrument};
 
-use crate::errors::ProviderError;
+use crate::{errors::ProviderError};
 
 // Configuration management
 // ========================
@@ -35,6 +35,13 @@ const DEFAULT_CONF_FILE: &str = "tms_provider/conf.{toml,yaml,yml,json,json5,ini
 /// field `port` from `ApplicationConfig` defaults and from the settings file.
 const CONFIG_VAR_PREFIX: &str = "TMS_PROVIDER";
 
+#[derive(Deserialize, Serialize, Debug)]
+pub enum DataSourceKind {
+    Null,
+    File,
+    Database,
+}
+
 /// Configuration for the application itself
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ApplicationConfig {
@@ -44,6 +51,10 @@ pub struct ApplicationConfig {
     pub address: IpAddr,
     /// Port where the web server is listening
     pub port: u16,
+    /// Type of data source
+    pub source_kind: DataSourceKind,
+    /// Location of data source (e.g., a connection string for a database)
+    pub source_location: String,
 }
 
 impl Default for ApplicationConfig {
@@ -52,6 +63,8 @@ impl Default for ApplicationConfig {
             app_name: Default::default(),
             address: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
             port: 8080,
+            source_kind: DataSourceKind::File,
+            source_location: "assets/sources-sample.yaml".into(),
         }
     }
 }
@@ -206,6 +219,7 @@ mod test {
         let path = temp_dir.path().join(file_name);
         let s = serialize(cfg)?;
         let mut f = File::create(&path)?;
+        dbg!(&s);
         f.write_all(s.as_bytes())?;
         f.rewind()?;
         Ok((temp_dir, f, path.to_string_lossy().to_string()))

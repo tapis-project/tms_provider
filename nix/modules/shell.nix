@@ -11,7 +11,7 @@
           alias sudo='\sudo env PATH="$PATH" HOME="$HOME"'
         '';
         packages = with config.packages; [
-          tms-provider
+          # tms-provider
         ];
       };
     };

@@ -3,16 +3,17 @@ use std::sync::Arc;
 use tracing::info;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-use crate::errors::ProviderError;
+use crate::{config::DataSourceKind, errors::ProviderError, sources::Source};
 use crate::state::AppState;
 
+mod types;
 mod config;
 mod errors;
 mod routes;
 mod state;
-mod services;
-mod provider;
+mod handlers;
 mod sources;
+mod auth;
 
 #[tokio::main]
 async fn main() -> Result<(), ProviderError> {
