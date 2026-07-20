@@ -12,18 +12,22 @@ use axum_extra::{
 use jwtiny::{AlgorithmPolicy, Claims, ClaimsValidation, TokenValidator};
 use moka::future::Cache;
 use reqwest::Client;
+use tracing::debug;
 
 use crate::{config::ApplicationConfig, errors::ServiceError, state::AppState};
 
 const CACHE_MAX_CAPACITY: u64 = 1000;
 
 pub fn mk_validator(config: &ApplicationConfig) -> TokenValidator {
+    debug!(
+        CACHE_MAX_CAPACITY,
+        "Compiled value for maximum capacity of key cache"
+    );
     let client = Client::new();
     let cache = Cache::<String, Vec<u8>>::builder()
         .time_to_live(config.jwt_key_cache_ttl)
         .max_capacity(CACHE_MAX_CAPACITY)
         .build();
-
     let issuers = config
         .jwt_issuers
         .as_ref()
@@ -66,11 +70,13 @@ where
             })?
             .token()
             .to_owned();
-        dbg!(&token);
-        Ok(UserClaims(state.validator.verify(&token).await.map_err(
-            |err| ServiceError::AuthenticationError {
+        debug!(token, "Raw JWT token");
+        let claims = UserClaims(state.validator.verify(&token).await.map_err(|err| {
+            ServiceError::AuthenticationError {
                 error: format!("JWT token error: {err}"),
-            },
-        )?))
+            }
+        })?);
+        debug!(claims=?claims, "Claims from JWT token");
+        Ok(claims)
     }
 }

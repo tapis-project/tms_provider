@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use jwtiny::TokenValidator;
+use tracing::debug;
 
 use crate::{
     auth::mk_validator,
@@ -20,7 +21,7 @@ pub struct AppState {
 impl AppState {
     pub fn from_config() -> Result<Self, ProviderError> {
         let config = ApplicationConfig::from_sources()?;
-        dbg!(&config);
+        debug!(config=?config, "Configuration");
         let source: Box<dyn Source + Sync + Send + 'static> = match config.source_kind {
             DataSourceKind::Null => Box::new(NullSource),
             DataSourceKind::File => {

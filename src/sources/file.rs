@@ -1,6 +1,6 @@
 use ordermap::OrderSet;
 use serde::Deserialize;
-use tracing::warn;
+use tracing::{debug, warn};
 
 use crate::{
     errors::{ProviderError, SourceError::ResourceNotFound},
@@ -70,6 +70,7 @@ impl FileSource {
             data: serde_yaml::from_str(&s)
                 .map_err(|e| ProviderError::ApplicationConfigError(e.to_string()))?,
         };
+        debug!(file=?file, "Initialized Data Source from file");
         Ok(src)
     }
 }
