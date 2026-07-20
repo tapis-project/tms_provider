@@ -1,10 +1,11 @@
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 
-use jwtiny::{AlgorithmPolicy, ClaimsValidation, TokenValidator};
-use moka::future::Cache;
-use reqwest::Client;
+use jwtiny::TokenValidator;
 
-use crate::{auth::mk_validator, sources::{Source, file::FileSource, null::NullSource}};
+use crate::{
+    auth::mk_validator,
+    sources::{Source, file::FileSource, null::NullSource},
+};
 use crate::{
     config::{ApplicationConfig, DataSourceKind},
     errors::ProviderError,

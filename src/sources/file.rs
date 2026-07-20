@@ -1,3 +1,4 @@
+use ordermap::OrderSet;
 use serde::Deserialize;
 
 use crate::{
@@ -14,7 +15,7 @@ use std::{
 };
 
 pub struct FileSource {
-    file: PathBuf,
+    _file: PathBuf,
     data: ResourcesData,
 }
 
@@ -54,7 +55,9 @@ impl Source for FileSource {
                         .cloned()
                         .ok_or_else(|| ResourceNotFound(r.into()))
                 })
-                .collect::<Result<Vec<_>, _>>()?,
+                .collect::<Result<OrderSet<_>, _>>()?
+                .into_iter()
+                .collect::<Vec<_>>(),
         })
     }
 }
@@ -63,7 +66,7 @@ impl FileSource {
     pub fn from_path(file: &Path) -> Result<Self, ProviderError> {
         let s = read_to_string(&file)?;
         let src = FileSource {
-            file: file.into(),
+            _file: file.into(),
             data: serde_yaml::from_str(&s)
                 .map_err(|e| ProviderError::ApplicationConfigError(e.to_string()))?,
         };

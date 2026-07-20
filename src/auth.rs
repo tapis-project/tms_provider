@@ -2,14 +2,12 @@ use std::sync::Arc;
 
 use axum::{
     RequestPartsExt,
-    extract::{self, FromRef, FromRequestParts, State},
+    extract::{FromRef, FromRequestParts},
     http::request::Parts,
-    response::Response,
 };
 use axum_extra::{
     TypedHeader,
     headers::{Authorization, authorization::Bearer},
-    typed_header::TypedHeaderRejection,
 };
 use jwtiny::{AlgorithmPolicy, Claims, ClaimsValidation, TokenValidator};
 use moka::future::Cache;

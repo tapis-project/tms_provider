@@ -1538,6 +1538,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ordermap"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f7476a5b122ff1fce7208e7ee9dccd0a516e835f5b8b19b8f3c98a34cf757c1"
+dependencies = [
+ "indexmap",
+]
+
+[[package]]
 name = "parking"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2411,6 +2420,7 @@ dependencies = [
  "globwalk",
  "jwtiny",
  "moka",
+ "ordermap",
  "reqwest",
  "serde",
  "serde_derive",

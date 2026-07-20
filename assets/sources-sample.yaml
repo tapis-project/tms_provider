@@ -17,10 +17,12 @@ resources:
 
 generally_available:
 - r111
-- r222
-- r333
 
 per_account:
+  testuser2@dev:
+  - r111
+  - r333
+
   account-a:
   - r111
   - r222

@@ -1,13 +1,4 @@
-use std::{
-    collections::HashMap,
-    fs::read_to_string,
-    path::{Path, PathBuf},
-};
-
-use crate::{
-    errors::ProviderError,
-    types::{AccountId, ResourceId},
-};
+use crate::types::{AccountId, ResourceId};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -22,7 +13,7 @@ pub struct Resources {
     pub resources: Vec<Resource>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Resource {
     pub resource_id: ResourceId,
     pub name: String,

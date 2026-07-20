@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tracing::info;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-use crate::{config::DataSourceKind, errors::ProviderError, sources::Source};
+use crate::errors::ProviderError;
 use crate::state::AppState;
 
 mod types;
