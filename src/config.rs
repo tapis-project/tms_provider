@@ -3,7 +3,8 @@ use dirs::config_dir;
 use globwalk::GlobWalkerBuilder;
 use serde::Serialize;
 use serde_derive::Deserialize;
-use std::net::IpAddr;
+use url::Url;
+use std::{net::IpAddr, time::Duration};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 use tracing::{debug, instrument};
@@ -55,6 +56,10 @@ pub struct ApplicationConfig {
     pub source_kind: DataSourceKind,
     /// Location of data source (e.g., a connection string for a database)
     pub source_location: String,
+    /// Issuers accepted for JWT validation
+    pub jwt_issuers: Option<Vec<Url>>,
+    /// Time to live for JWT key cache
+    pub jwt_key_cache_ttl: Duration
 }
 
 impl Default for ApplicationConfig {
@@ -65,6 +70,8 @@ impl Default for ApplicationConfig {
             port: 8080,
             source_kind: DataSourceKind::File,
             source_location: "assets/sources-sample.yaml".into(),
+            jwt_issuers: Some(vec![]),
+            jwt_key_cache_ttl: Duration::from_secs(300)
         }
     }
 }

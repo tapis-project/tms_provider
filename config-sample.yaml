@@ -1,0 +1,5 @@
+port: 8081
+source_kind: File
+source_location: /Users/wmoreira/repos/tms_provider/assets/sources-sample.yaml
+jwt_issuers:
+  - https://dev.develop.tapis.io/v3/tokens

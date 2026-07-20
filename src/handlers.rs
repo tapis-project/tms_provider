@@ -31,7 +31,13 @@ pub async fn resources(
         })?
         .token()
         .to_owned();
-    dbg!(token);
+    dbg!(&token);
+    let claims = state.validator.verify(&token).await.map_err(|err| {
+        ServiceError::AuthenticationError {
+            error: format!("JWT token error: {err}"),
+        }
+    })?;
+    dbg!(claims);
     let resources = state.source.get_resources(None).await?;
     Ok(JsonResponse::Ok()
         .message("success from resources handler")
