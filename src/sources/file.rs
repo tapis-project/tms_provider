@@ -1,11 +1,9 @@
 use ordermap::OrderSet;
 use serde::Deserialize;
+use tracing::warn;
 
 use crate::{
-    errors::{
-        ProviderError,
-        SourceError::{AccountNotFound, ResourceNotFound},
-    },
+    errors::{ProviderError, SourceError::ResourceNotFound},
     sources::*,
 };
 use std::{
@@ -36,12 +34,14 @@ impl Source for FileSource {
         let empty = vec![];
         let per_account = account
             .map(|act| {
-                self.data
-                    .per_account
-                    .get(&act)
-                    .ok_or_else(|| AccountNotFound(act))
+                self.data.per_account.get(&act).unwrap_or_else(|| {
+                    warn!(
+                        act,
+                        "Account not found, returning only generally available resources"
+                    );
+                    &empty
+                })
             })
-            .transpose()?
             .unwrap_or(&empty);
         Ok(Resources {
             resources: self

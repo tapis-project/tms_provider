@@ -12,6 +12,6 @@ pub async fn resources(
 ) -> Result<JsonResponse, ServiceError> {
     let resources = state.source.get_resources(claims.subject).await?;
     Ok(JsonResponse::Ok()
-        .message("success from resources handler")
+        .message("success")
         .data(resources))
 }
