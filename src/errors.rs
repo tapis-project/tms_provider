@@ -18,7 +18,7 @@ pub enum ServiceError {
     #[http(transparent)]
     FromSource(#[from] SourceError),
     #[error("Authentication error: {error}")]
-    #[http(code = 403, error = error)]
+    #[http(code = 401, error = error)]
     AuthenticationError { error: String },
 }
 
