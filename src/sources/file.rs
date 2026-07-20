@@ -64,7 +64,7 @@ impl Source for FileSource {
 
 impl FileSource {
     pub fn from_path(file: &Path) -> Result<Self, ProviderError> {
-        let s = read_to_string(&file)?;
+        let s = read_to_string(file)?;
         let src = FileSource {
             _file: file.into(),
             data: serde_yaml::from_str(&s)
