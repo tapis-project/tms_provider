@@ -10,6 +10,11 @@
       {
         options = {
           tms-provider = {
+            git_url = lib.mkOption {
+              type = lib.types.str;
+              default = "https://github.com/tapis-project/tms_provider";
+              description = "URL for the remote Git repository";
+            };
             version = lib.mkOption {
               type = lib.types.str;
               default = "0.0.0";
@@ -31,6 +36,76 @@
                 Version of Rust in toolchain. 
               
                 For changing the toolchain, please, use configure `rust` module.
+              '';
+            };
+            RUST_LOG = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Value for RUST_LOG.
+
+                Consult https://docs.rs/env_logger/latest/env_logger/#enabling-logging
+                for the grammar of this value.
+              '';
+            };
+            address = lib.mkOption {
+              type = lib.types.str;
+              default = "0.0.0.0";
+              description = "Address where TMS Resources Provider will listen";
+            };
+            port = lib.mkOption {
+              type = lib.types.port;
+              default = 9000;
+              description = "Port where TMS Resources Provider will listen";
+            };
+            source_kind = lib.mkOption {
+              type = lib.types.enum [ "Null" "File" "Database" ];
+              default = "Null";
+              description = ''
+                Data source where to obtain the resources.
+
+                - `Null`: a source that returns an empty collection of resources
+                - `File`: use a file as source (see an example: [sources-sample.yaml](${config.tms-provider.git_url}/blob/main/assets/sources-sample.yaml))
+                - `Database`: not implemented yet
+              '';
+            };
+            source_location = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Location of the data source. 
+                
+                For example, a path for the `File` source,
+                or a connection string for the `Database` source.
+              '';
+            };
+            jwt_issuers = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = ''
+                List of URLs of issuers accepted for the JWT tokens.
+
+                The URLs must be configured to respond to the standard 
+                `.well-known/openid-configuration`.
+              '';
+            };
+            jwt_key_cache_ttl = lib.mkOption {
+              type = lib.types.ints.positive;
+              default = 300;
+              description = ''
+                Time to live for the cache that contains the public keys from the
+                issuers (in seconds).
+              '';
+            };
+            silent = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = ''
+                Whether to display a banner to stdout at start-up time, 
+                with information about configured options.
+
+                Note that with `silent = false`, the information is still available in the 
+                logs (for example, setting `RUST_LOG = debug`).
               '';
             };
           };
@@ -60,19 +135,35 @@
               mainProgram = "tms_provider";
             };
           });
-      wrapped-tms-provider = pkgs.stdenv.mkDerivation {
-        name = "tms-provider";
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        buildInputs = [ pkgs.rsync config.shell-utils.tomlMap ];
-        dontUnpack = true;
-        installPhase = ''
-          mkdir -p $out/bin
-          makeWrapper ${lib.getExe tms-provider} $out/bin/tms-provider \
-            --set TMS_PROVIDER_VERSION "${config.tms-provider.version}" \
-            --set TMS_PROVIDER_COMMIT "${config.tms-provider.git_commit}" \
-            --set TMS_PROVIDER_RUST_VERSION "${config.tms-provider.rust_version}"
-        '';
-      };
+      wrapped-tms-provider =
+        let
+          conf = builtins.toJSON {
+            inherit (config.tms-provider)
+              address
+              port
+              source_kind
+              source_location
+              jwt_issuers
+              jwt_key_cache_ttl
+              silent;
+          };
+        in
+        pkgs.stdenv.mkDerivation {
+          name = "tms-provider";
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          buildInputs = [ pkgs.rsync config.shell-utils.tomlMap ];
+          dontUnpack = true;
+          installPhase = ''
+            mkdir -p $out/{bin,etc}
+            echo '${conf}' > $out/etc/config.json
+            makeWrapper ${lib.getExe tms-provider} $out/bin/tms-provider \
+              --set TMS_PROVIDER_VERSION "${config.tms-provider.version}" \
+              --set TMS_PROVIDER_COMMIT "${config.tms-provider.git_commit}" \
+              --set TMS_PROVIDER_RUST_VERSION "${config.tms-provider.rust_version}" \
+              --set RUST_LOG "${config.tms-provider.RUST_LOG}" \
+              --set TMS_PROVIDER_CONF_FILE "$out/etc/config.json"
+          '';
+        };
       # TMS + Postgres for local development.
       # Start Postgres with empty db, run `tms-server --install` on a fresh root
       # directory, and start `tms-server`.

@@ -20,6 +20,7 @@
       {
         imports = [
           ./nix/modules
+          ./nix/modules/documentation.nix
           inputs.shell-utils.flakeModule
         ];
         config = {

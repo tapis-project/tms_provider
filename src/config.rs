@@ -3,9 +3,11 @@ use dirs::config_dir;
 use globwalk::GlobWalkerBuilder;
 use serde::Serialize;
 use serde_derive::Deserialize;
+use serde_with::{DurationSeconds, serde_as};
+use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
-use std::{net::IpAddr, time::Duration};
+use std::time::Duration;
 use tracing::{debug, instrument};
 use url::Url;
 
@@ -44,6 +46,7 @@ pub enum DataSourceKind {
 }
 
 /// Configuration for the application itself
+#[serde_as]
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ApplicationConfig {
     /// The name of the application
@@ -59,6 +62,7 @@ pub struct ApplicationConfig {
     /// Issuers accepted for JWT validation
     pub jwt_issuers: Option<Vec<Url>>,
     /// Time to live for JWT key cache
+    #[serde_as(as = "DurationSeconds<u64>")]
     pub jwt_key_cache_ttl: Duration,
     /// If `true`, don't print to stdout
     pub silent: bool,
