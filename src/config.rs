@@ -3,13 +3,13 @@ use dirs::config_dir;
 use globwalk::GlobWalkerBuilder;
 use serde::Serialize;
 use serde_derive::Deserialize;
-use url::Url;
-use std::{net::IpAddr, time::Duration};
 use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
+use std::{net::IpAddr, time::Duration};
 use tracing::{debug, instrument};
+use url::Url;
 
-use crate::{errors::ProviderError};
+use crate::errors::ProviderError;
 
 // Configuration management
 // ========================
@@ -36,7 +36,7 @@ const DEFAULT_CONF_FILE: &str = "tms_provider/conf.{toml,yaml,yml,json,json5,ini
 /// field `port` from `ApplicationConfig` defaults and from the settings file.
 const CONFIG_VAR_PREFIX: &str = "TMS_PROVIDER";
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum DataSourceKind {
     Null,
     File,
@@ -44,7 +44,7 @@ pub enum DataSourceKind {
 }
 
 /// Configuration for the application itself
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ApplicationConfig {
     /// The name of the application
     pub app_name: String,
@@ -59,7 +59,9 @@ pub struct ApplicationConfig {
     /// Issuers accepted for JWT validation
     pub jwt_issuers: Option<Vec<Url>>,
     /// Time to live for JWT key cache
-    pub jwt_key_cache_ttl: Duration
+    pub jwt_key_cache_ttl: Duration,
+    /// If `true`, don't print to stdout
+    pub silent: bool,
 }
 
 impl Default for ApplicationConfig {
@@ -71,7 +73,8 @@ impl Default for ApplicationConfig {
             source_kind: DataSourceKind::File,
             source_location: "assets/sources-sample.yaml".into(),
             jwt_issuers: Some(vec![]),
-            jwt_key_cache_ttl: Duration::from_secs(300)
+            jwt_key_cache_ttl: Duration::from_secs(300),
+            silent: false,
         }
     }
 }

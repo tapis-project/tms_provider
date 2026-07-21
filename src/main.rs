@@ -1,19 +1,41 @@
 use std::sync::Arc;
 
-use tracing::info;
+use axum::serve;
+use indoc::formatdoc;
+use tracing::{debug, info};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-use crate::errors::ProviderError;
 use crate::state::AppState;
+use crate::{errors::ProviderError, routes::app};
 
-mod types;
+mod auth;
 mod config;
 mod errors;
-mod routes;
-mod state;
 mod handlers;
+mod routes;
 mod sources;
-mod auth;
+mod state;
+mod types;
+
+fn banner(state: &AppState) -> String {
+    let version = &state.version;
+    let rust_version = &state.rust_version;
+    let commit = &state.commit;
+    let data_source = &state.config.source_kind;
+    let address = &state.config.address;
+    let port = &state.config.port;
+    formatdoc!(
+        r#"
+        --- TMS Resources Provider ---
+        Version: {version}
+        Commit: {commit}
+        Rust version: {rust_version}
+
+        Using Data source: {data_source:?}
+        Listening at: {address}:{port}
+    "#
+    )
+}
 
 #[tokio::main]
 async fn main() -> Result<(), ProviderError> {
@@ -25,13 +47,17 @@ async fn main() -> Result<(), ProviderError> {
         .init();
 
     let state = AppState::from_config()?;
-
-    let address = state.config.address;
-    let port = state.config.port;
-    let listener = tokio::net::TcpListener::bind(format!("{address}:{port}",)).await?;
-
-    let app = routes::app(Arc::new(state));
-    info!(?address, port, "Started TMS Provider");
-    axum::serve(listener, app).await?;
+    let listener = tokio::net::TcpListener::bind(format!(
+        "{}:{}",
+        state.config.address, state.config.port
+    ))
+    .await?;
+    info!(?state.config.address, state.config.port, "Starting TMS Provider app");
+    let banner = banner(&state);
+    debug!(banner);
+    if !state.config.silent {
+        println!("{banner}");
+    }
+    serve(listener, app(Arc::new(state))).await?;
     Ok(())
 }
