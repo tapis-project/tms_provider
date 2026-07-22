@@ -47,7 +47,6 @@ pub fn mk_validator(config: &ApplicationConfig) -> TokenValidator {
         .cache(cache)
 }
 
-//pub struct UserClaims(Claims);
 #[derive(Debug)]
 pub struct UserClaims(pub Claims);
 
