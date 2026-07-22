@@ -176,54 +176,6 @@
               --set TMS_PROVIDER_CONF_FILE "$out/etc/config.json"
           '';
         };
-      # TMS + Postgres for local development.
-      # Start Postgres with empty db, run `tms-server --install` on a fresh root
-      # directory, and start `tms-server`.
-      # tms-server-stack-up = pkgs.writeShellApplication {
-      #   name = "tms-server-up";
-      #   runtimeInputs = with pkgs; [
-      #     mktemp
-      #   ];
-      #   text = ''
-      #     command -v sudo >/dev/null 2>&1 || (printf "Need \`sudo\` to run postgres"; exit 1)
-      #     tms-server-down () {
-      #       sudo ${config.packages.postgres}/bin/postgres-down
-      #     }
-      #     trap tms-server-down EXIT
-      #     sudo ${config.packages.postgres}/bin/postgres-up
-      #     echo "Initializing database"
-      #     env \
-      #       PATH="$PATH" \
-      #       TMS_DB_HOST="${config.tms.TMS_DB_HOST}" \
-      #       TMS_DB_PORT="${toString config.tms.TMS_DB_PORT}" \
-      #       POSTGRES_USER="${config.postgres.POSTGRES_USER}" \
-      #       POSTGRES_PASSWORD="${config.postgres.POSTGRES_PASSWORD}" \
-      #       TMS_DB_USER="${config.tms.TMS_DB_USER}" \
-      #       TMS_DB_USER_PASSWORD="${config.tms.TMS_DB_USER_PASSWORD}" \
-      #       TMS_DB_DB_NAME="${config.tms.TMS_DB_DB_NAME}" \
-      #       ${initDb}
-      #     TEMP=$(mktemp -d)
-      #     ${wrapped-tms-server}/bin/tms-server --install --root-dir "$TEMP"
-      #     ${pkgs.gum}/bin/gum style \
-      #       --foreground 212 --border-foreground 212 --border double \
-      #       --align center --width 50 --margin "1 2" --padding "2 4" \
-      #       "TMS Server is running in root-dir = $TEMP"
-      #     ${wrapped-tms-server}/bin/tms-server --root-dir "$TEMP"
-      #   '';
-      # };
-      # tms-server-stack-down = pkgs.writeShellApplication {
-      #   name = "tms-server-down";
-      #   text = ''
-      #     ${config.packages.postgres}/bin/postgres-down
-      #   '';
-      # };
-      # tms-server-stack = pkgs.symlinkJoin {
-      #   name = "tms-server-stack";
-      #   paths = [
-      #     tms-server-stack-up
-      #     tms-server-stack-down
-      #   ];
-      # };
     in
     {
       config = {
