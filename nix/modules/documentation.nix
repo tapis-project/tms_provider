@@ -31,16 +31,14 @@
             pkgs.coreutils
             pkgs.xdg-utils
             config.shell-utils.findPort
+            config.shell-utils.display
           ];
           text = ''
             cd ${mdBookProject}/book
             PORT="$(find-port)"
             trap 'kill $(jobs -p) && echo "Documentation server stopped"' EXIT
             python3 -m http.server "$PORT" &
-            ${pkgs.gum}/bin/gum style \
-            --foreground 212 --border-foreground 212 --border double \
-            --align center --width 50 --margin "1 2" --padding "2 4" \
-            "Documentation available at http://localhost:$PORT"
+            display "Documentation available at http://localhost:$PORT"
             xdg-open http://localhost:"$PORT"
             sleep infinity
           '';
