@@ -4,7 +4,6 @@
   description = "A Nix Flake for the TMS Provider";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    # simple-flake.url = "path:/Users/wmoreira/repos/simple-flake";
     simple-flake.url = "github:waltermoreira/simple-flake";
     shell-utils.url = "github:waltermoreira/shell-utils";
     crane.url = "github:ipetkov/crane";

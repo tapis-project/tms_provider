@@ -227,12 +227,12 @@
     in
     {
       config = {
-        # apps = {
-        #   default = lib.mkForce {
-        #     type = "app";
-        #     program = "${tms-server-stack-up}/bin/tms-server-up";
-        #   };
-        # };
+        apps = {
+          default = lib.mkForce {
+            type = "app";
+            program = "${wrapped-tms-provider}/bin/tms-provider";
+          };
+        };
         packages = {
           default = lib.mkForce wrapped-tms-provider;
           inherit tms-provider wrapped-tms-provider;
