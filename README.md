@@ -9,11 +9,10 @@ For the out-of-the-box application, run:
 nix run github:tapis-project/tms_provider
 ```
 
-For running the application from the source code, run:
+For running the application from the source code, clone this repository and run:
 ```bash
 nix run
 ```
-in local clone of this repository.
 
 Alternatively, build the application and run it with:
 ```bash
@@ -38,6 +37,7 @@ Access the full list of options to configure by running:
 ```bash
 nix run .#docs-serve
 ```
+in the local clone of the repository,
 and change the values of the options in the file `nix/config.nix`. After changing
 the config, ensure you run `nix build`.
 
