@@ -1,0 +1,27 @@
+resources:
+  stampede:
+    resource_id: stampede
+    name: Stampede
+    url: http://example.org/
+    description: Stampede at TACC
+  vista:
+    resource_id: vista
+    name: Vista
+    url: http://example.org/
+    description: Vista at TACC
+  frontera:
+    resource_id: frontera
+    name: Frontera
+    url: http://example.org/
+    description: Frontera at TACC
+
+generally_available:
+- stampede
+
+per_account:
+  testuser2@dev:
+  - vista
+  - frontera
+
+  another-user@dev:
+  - frontera

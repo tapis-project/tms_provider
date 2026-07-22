@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use axum::serve;
-use indoc::formatdoc;
 use tracing::{debug, info};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-use crate::state::AppState;
+use crate::{banner::display_banner, state::AppState};
 use crate::{errors::ProviderError, routes::app};
 
 mod auth;
+mod banner;
 mod config;
 mod errors;
 mod handlers;
@@ -16,26 +16,6 @@ mod routes;
 mod sources;
 mod state;
 mod types;
-
-fn banner(state: &AppState) -> String {
-    let version = &state.version;
-    let rust_version = &state.rust_version;
-    let commit = &state.commit;
-    let data_source = &state.config.source_kind;
-    let address = &state.config.address;
-    let port = &state.config.port;
-    formatdoc!(
-        r#"
-        --- TMS Resources Provider ---
-        Version: {version}
-        Commit: {commit}
-        Rust version: {rust_version}
-
-        Using Data source: {data_source:?}
-        Listening at: {address}:{port}
-    "#
-    )
-}
 
 #[tokio::main]
 async fn main() -> Result<(), ProviderError> {
@@ -53,7 +33,7 @@ async fn main() -> Result<(), ProviderError> {
     ))
     .await?;
     info!(?state.config.address, state.config.port, "Starting TMS Provider app");
-    let banner = banner(&state);
+    let banner = display_banner(&state);
     debug!(banner);
     if !state.config.silent {
         println!("{banner}");

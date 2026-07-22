@@ -75,7 +75,7 @@ impl Default for ApplicationConfig {
             address: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
             port: 8080,
             source_kind: DataSourceKind::File,
-            source_location: "assets/sources-sample.yaml".into(),
+            source_location: "assets/data/resources.yaml".into(),
             jwt_issuers: Some(vec![]),
             jwt_key_cache_ttl: Duration::from_secs(300),
             silent: false,

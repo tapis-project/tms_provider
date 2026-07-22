@@ -60,7 +60,7 @@
             };
             source_kind = lib.mkOption {
               type = lib.types.enum [ "Null" "File" "Database" ];
-              default = "Null";
+              default = "File";
               description = ''
                 Data source where to obtain the resources.
 
@@ -70,13 +70,15 @@
               '';
             };
             source_location = lib.mkOption {
-              type = lib.types.str;
-              default = "";
+              type = lib.types.nullOr lib.types.str;
+              default = null;
               description = ''
                 Location of the data source. 
                 
                 For example, a path for the `File` source,
                 or a connection string for the `Database` source.
+                
+                The default `null` refers to the data file bundled with the source code.
               '';
             };
             jwt_issuers = lib.mkOption {
@@ -86,7 +88,7 @@
                 List of URLs of issuers accepted for the JWT tokens.
 
                 The URLs must be configured to respond to the standard 
-                `.well-known/openid-configuration`.
+                `<url>/.well-known/openid-configuration`. Do not use trailing slashes.
               '';
             };
             jwt_key_cache_ttl = lib.mkOption {
@@ -137,16 +139,25 @@
           });
       wrapped-tms-provider =
         let
-          conf = builtins.toJSON {
-            inherit (config.tms-provider)
-              address
-              port
-              source_kind
-              source_location
-              jwt_issuers
-              jwt_key_cache_ttl
-              silent;
-          };
+          source_location =
+            let
+              loc = config.tms-provider.source_location;
+            in
+            if builtins.isNull loc then
+              "${./../../assets/data/resources.yaml}"
+            else
+              loc;
+          conf = builtins.toJSON
+            {
+              inherit source_location;
+              inherit (config.tms-provider)
+                address
+                port
+                source_kind
+                jwt_issuers
+                jwt_key_cache_ttl
+                silent;
+            };
         in
         pkgs.stdenv.mkDerivation {
           name = "tms-provider";
@@ -156,6 +167,7 @@
           installPhase = ''
             mkdir -p $out/{bin,etc}
             echo '${conf}' > $out/etc/config.json
+            cp ${./../../assets/data/resources.yaml} $out/etc/resources.yaml
             makeWrapper ${lib.getExe tms-provider} $out/bin/tms-provider \
               --set TMS_PROVIDER_VERSION "${config.tms-provider.version}" \
               --set TMS_PROVIDER_COMMIT "${config.tms-provider.git_commit}" \
