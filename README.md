@@ -38,7 +38,8 @@ Access the full list of options to configure by running:
 ```bash
 nix run .#docs-serve
 ```
-and change the values of the options in the file `nix/config.nix`.
+and change the values of the options in the file `nix/config.nix`. After changing
+the config, ensure you run `nix build`.
 
 ## Adding a list of resources
 
