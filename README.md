@@ -25,11 +25,14 @@ nix build
 The out-of-the-box application listens in port 9000 and authenticates with tokens
 from `https://dev.develop.tapis.io/v3/tokens`. For an easy experience, run the development
 environment which provides `httpie` and a function to obtain a token:
-```bash
-nix develop
-TOKEN=$(get-token)
-http localhost:9000/resources Authorization:"Bearer $TOKEN"
-```
+
+1. Run the server, using one of the methods described in the previous section.
+2. On a different terminal, run
+    ```bash
+    nix develop
+    TOKEN=$(get-token)
+    http localhost:9000/resources Authorization:"Bearer $TOKEN"
+    ```
 
 ## Configuring the application
 
