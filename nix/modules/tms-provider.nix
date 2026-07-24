@@ -44,7 +44,8 @@
               description = ''
                 Value for RUST_LOG.
 
-                Consult https://docs.rs/env_logger/latest/env_logger/#enabling-logging
+                Consult the official Rust docs about [enabling
+                logging](https://docs.rs/env_logger/latest/env_logger/#enabling-logging)
                 for the grammar of this value.
               '';
             };
